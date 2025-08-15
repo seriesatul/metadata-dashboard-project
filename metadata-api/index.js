@@ -4,7 +4,7 @@ const { faker } = require('@faker-js/faker');
 const { startOfWeek, subDays, formatISO } = require('date-fns');
 const _ = require('lodash');
 
-// --- MOCK DATA GENERATION ---
+// --- MOCK DATA GENERATION --- (This section is unchanged)
 const TAGS = ['PII', 'Finance', 'Marketing', 'Sales', 'Product', 'GDPR'];
 const DATASETS = [];
 const NUM_DATASETS = 200;
@@ -47,108 +47,60 @@ for (let i = 1; i <= NUM_DATASETS; i++) {
     });
 }
 
-// --- GRAPHQL SCHEMA DEFINITION (typeDefs) ---
+// --- GRAPHQL SCHEMA DEFINITION (typeDefs) --- (This section is unchanged)
 const typeDefs = gql`
     type Query {
        datasets(page: Int, limit: Int, search: String, tags: [String], updatedSince: String): DatasetConnection!
         dataset(id: ID!): Dataset
     }
 
-    type DatasetConnection {
-        totalCount: Int!
-        datasets: [Dataset!]!
-    }
+    type DatasetConnection { totalCount: Int!, datasets: [Dataset!]! }
+    type Dataset { id: ID!, name: String!, description: String!, owner: User!, lastUpdated: String!, tags: [String!]!, schema: [SchemaColumn!]!, lineage: Lineage!, usage: [UsageDataPoint!]!, freshness: [FreshnessDataPoint!]! }
+    type User { id: ID!, name: String!, email: String! }
+    type SchemaColumn { name: String!, type: String!, description: String }
+    type Lineage { upstream: [LineageNode!]!, downstream: [LineageNode!]! }
+    type LineageNode { id: ID!, name: String! }
+    type UsageDataPoint { date: String!, queries: Int! }
+    type FreshnessDataPoint { date: String!, lastUpdated: String! }
+`;
 
-    type Dataset {
-        id: ID!
-        name: String!
-        description: String!
-        owner: User!
-        lastUpdated: String!
-        tags: [String!]!
-        schema: [SchemaColumn!]!
-        lineage: Lineage!
-        usage: [UsageDataPoint!]!
-        freshness: [FreshnessDataPoint!]!
-    }
-
-    type User {
-        id: ID!
-        name: String!
-        email: String!
-    }
-
-    type SchemaColumn {
-        name: String!
-        type: String!
-        description: String
-    }
-
-    type Lineage {
-        upstream: [LineageNode!]!
-        downstream: [LineageNode!]!
-    }
-
-    type LineageNode {
-        id: ID!
-        name: String!
-    }
-    
-    type UsageDataPoint {
-        date: String!
-        queries: Int!
-    }
-
-    type FreshnessDataPoint {
-        date: String!
-        lastUpdated: String!
-    }
-`; // <--- THIS IS THE FIX. The closing backtick and semicolon were missing.
-
-// --- RESOLVERS ---
+// --- RESOLVERS --- (This section is unchanged)
 const resolvers = {
     Query: {
         datasets: (_, { page = 1, limit = 10, search, tags, updatedSince }) => {
             let filteredDatasets = [...DATASETS];
-
             if (search) {
                 const lowerCaseSearch = search.toLowerCase();
-                filteredDatasets = filteredDatasets.filter(ds => 
-                    ds.name.toLowerCase().includes(lowerCaseSearch) ||
-                    ds.tags.some(tag => tag.toLowerCase().includes(lowerCaseSearch))
-                );
+                filteredDatasets = filteredDatasets.filter(ds => ds.name.toLowerCase().includes(lowerCaseSearch) || ds.tags.some(tag => tag.toLowerCase().includes(lowerCaseSearch)));
             }
-            
             if (tags && tags.length > 0) {
-                filteredDatasets = filteredDatasets.filter(ds =>
-                    tags.every(tag => ds.tags.includes(tag))
-                );   
+                filteredDatasets = filteredDatasets.filter(ds => tags.every(tag => ds.tags.includes(tag)));   
             }
-
-             // ADD THIS NEW FILTER LOGIC
             if (updatedSince) {
                 const sinceDate = new Date(updatedSince);
                 filteredDatasets = filteredDatasets.filter(ds => new Date(ds.lastUpdated) >= sinceDate);
             }
-
-
-            
             const totalCount = filteredDatasets.length;
             const startIndex = (page - 1) * limit;
             const paginatedDatasets = filteredDatasets.slice(startIndex, startIndex + limit);
-
-            return {
-                totalCount,
-                datasets: paginatedDatasets,
-            };
+            return { totalCount, datasets: paginatedDatasets, };
         },
         dataset: (_, { id }) => DATASETS.find(ds => ds.id === id),
     },
 };
 
 // --- SERVER INSTANCE ---
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({ 
+    typeDefs, 
+    resolvers,
+    // FIX #2: Add CORS configuration to allow cross-origin requests
+    cors: {
+        origin: '*', // Allows all origins; more secure to specify your Vercel URL
+        credentials: true
+    }
+});
 
-server.listen().then(({ url }) => {
+// FIX #1: Listen on the port designated by Render, or 4000 for local development
+server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
     console.log(`🚀 Server ready at ${url}`);
 });
