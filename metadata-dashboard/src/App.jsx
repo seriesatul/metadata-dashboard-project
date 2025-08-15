@@ -6,7 +6,7 @@ import DashboardPage from "./pages/DashboardPage";
 
 // Initialize Apollo Client
 const client = new ApolloClient({
-  uri: "https://metadata-dashboard-project.onrender.com",
+  uri: "https://metadata-dashboard-project-2.onrender.com",
   cache: new InMemoryCache(),
 });
 
