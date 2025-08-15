@@ -12,10 +12,15 @@ An enterprise-grade, responsive dashboard for managing and exploring dataset met
 
 **[https://metadata-dashboard-project-siaf.vercel.app/](https://metadata-dashboard-project-siaf.vercel.app/)**
 
+
+
+
 ### 📸 Screenshots
 
-[ADD YOUR SCREENSHOT HERE]
-*(A full-width screenshot of the dashboard showing the table and search bar would be perfect here. A second screenshot showing the details drawer with charts is also a great idea.)*
+<img width="1918" height="873" alt="image" src="https://github.com/user-attachments/assets/8a0d4eb4-0405-4efe-894a-239deeb58056" />
+<img width="1895" height="865" alt="image" src="https://github.com/user-attachments/assets/778a3452-ab42-440b-a7c1-97c639f9451b" />
+<img width="358" height="757" alt="image" src="https://github.com/user-attachments/assets/00c8efee-6765-4ba5-bcd6-1d281fa8e07b" />
+
 
 ---
 
