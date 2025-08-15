@@ -5,6 +5,7 @@ import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import DashboardPage from "./pages/DashboardPage";
 
 // Initialize Apollo Client
+//framing an comment
 const client = new ApolloClient({
   uri: "https://metadata-dashboard-project-2.onrender.com/",
   cache: new InMemoryCache(),
